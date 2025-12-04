@@ -1,0 +1,20 @@
+baseURL = 'https://toshioiwai-archive.github.io/'
+defaultContentLanguage = 'ja'
+theme = 'toshioiwai'
+
+[languages]
+  [languages.ja]
+    languageName = '日本語'
+    languageCode = 'ja'
+    weight = 1
+    title = 'Toshio Iwai Archive'
+    [languages.ja.params]
+      description = '岩井俊雄氏のアーカイブサイト'
+
+  [languages.en]
+    languageName = 'English'
+    languageCode = 'en'
+    weight = 2
+    title = 'Toshio Iwai Archive'
+    [languages.en.params]
+      description = 'Archive of Toshio Iwai'

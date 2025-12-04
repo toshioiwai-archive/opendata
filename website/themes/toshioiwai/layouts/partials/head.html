@@ -1,0 +1,15 @@
+{{/* HTMLヘッド部分: メタタグ、タイトル、CSS/JS設定 */}}
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width">
+
+{{/* ページタイトル: ホームの場合はサイトタイトルのみ、それ以外はページタイトル | サイトタイトル */}}
+<title>{{ if .IsHome }}{{ site.Title }}{{ else }}{{ printf "%s | %s" .Title site.Title }}{{ end }}</title>
+
+{{/* メタディスクリプション */}}
+<meta name="description" content="{{ .Site.Params.description }}">
+
+{{/* カスタムCSS（存在する場合） */}}
+{{ partialCached "head/css.html" . }}
+
+{{/* カスタムJS（存在する場合） */}}
+{{ partialCached "head/js.html" . }}

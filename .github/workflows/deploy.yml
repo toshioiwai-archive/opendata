@@ -1,0 +1,87 @@
+# GitHub Actions: Hugo サイトを GitHub Pages にデプロイ
+name: Deploy Hugo site to Pages
+
+on:
+  # mainブランチへのpush時に実行
+  push:
+    branches:
+      - main
+
+  # 手動実行を許可
+  workflow_dispatch:
+
+# GitHub Pages へのデプロイに必要な権限
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# 同時実行の制御: 1つのデプロイのみ実行
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+# デフォルトのシェル設定
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  # ビルドジョブ: Hugo サイトをビルド
+  build:
+    runs-on: ubuntu-latest
+    env:
+      HUGO_VERSION: 0.145.0
+    steps:
+      # 1. リポジトリをチェックアウト
+      - name: リポジトリをチェックアウト
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          fetch-depth: 0
+
+      # 2. Hugo をインストール
+      - name: Hugo をインストール
+        run: |
+          wget -O ${{ runner.temp }}/hugo.deb https://github.com/gohugoio/hugo/releases/download/v${HUGO_VERSION}/hugo_extended_${HUGO_VERSION}_linux-amd64.deb \
+          && sudo dpkg -i ${{ runner.temp }}/hugo.deb
+
+      # 3. Hugo バージョンを確認
+      - name: Hugo バージョンを確認
+        run: hugo version
+
+      # 4. GitHub Pages の設定
+      - name: GitHub Pages の設定
+        id: pages
+        uses: actions/configure-pages@v5
+
+      # 5. Hugo でサイトをビルド
+      - name: Hugo でビルド
+        env:
+          HUGO_CACHEDIR: ${{ runner.temp }}/hugo_cache
+          HUGO_ENVIRONMENT: production
+        run: |
+          cd website
+          hugo \
+            --gc \
+            --minify \
+            --baseURL "${{ steps.pages.outputs.base_url }}/"
+
+      # 6. ビルド成果物をアップロード
+      - name: ビルド成果物をアップロード
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./website/public
+
+  # デプロイジョブ: GitHub Pages にデプロイ
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      # GitHub Pages にデプロイ
+      - name: GitHub Pages にデプロイ
+        id: deployment
+        uses: actions/deploy-pages@v4

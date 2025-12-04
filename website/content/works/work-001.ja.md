@@ -1,5 +1,5 @@
 ---
-title: 作品タイトル例
+title: 作品タイトル例++
 year: 1985
 type: interactive_installation
 date: 1985-01-01
